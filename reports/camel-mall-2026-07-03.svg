@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1600" viewBox="0 0 1200 1600">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1900" viewBox="0 0 1200 1900">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#f7fafc"/>
@@ -22,6 +22,7 @@
     </style>
   </defs>
   <rect width="1200" height="1600" fill="url(#bg)"/>
+  <rect y="1600" width="1200" height="300" fill="url(#bg)"/>
   <rect x="44" y="44" width="1112" height="226" rx="28" fill="url(#hero)"/>
   <text x="82" y="120" class="font title">CAMEL Mall 竞品情报日报</text>
   <text x="84" y="168" class="font sub">FastMoss 数据源 · TikTok Shop Thailand · 2026-07-03</text>
@@ -91,4 +92,22 @@
   <rect x="78" y="1450" width="1044" height="96" rx="22" fill="#17242d"/>
   <text x="112" y="1494" class="font sub">今日判断：近7天销量最高为 电煮锅 / 多功能电锅，近7天销量 1.8k。</text>
   <text x="112" y="1532" class="font sub">后续重点：价格变化、近7天增量、达人出单率、直播/视频带货规模。</text>
+
+  <rect x="78" y="1588" width="1044" height="240" rx="24" fill="#ffffff"/>
+  <text x="110" y="1640" class="font card-title">多源数据雷达</text>
+  
+    <rect x="110" y="1668" width="220" height="56" rx="18" fill="#0f7b6c"/>
+    <text x="130" y="1702" class="font pill">FastMoss 主数据 · 已接入</text>
+  
+    <rect x="350" y="1668" width="220" height="56" rx="18" fill="#7b8794"/>
+    <text x="370" y="1702" class="font pill">EchoTik 校验 · 待接入</text>
+  
+    <rect x="590" y="1668" width="220" height="56" rx="18" fill="#20639b"/>
+    <text x="610" y="1702" class="font pill">素材动向 · 已加入</text>
+  
+    <rect x="830" y="1668" width="220" height="56" rx="18" fill="#d97904"/>
+    <text x="850" y="1702" class="font pill">自家店铺 · 待接入</text>
+  <text x="110" y="1766" class="font small">Creative Center 关键词：CAMEL blender / egg cooker / steam iron / electric pot</text>
+  <text x="110" y="1804" class="font small">我方表现：可接 TikTok Seller Center 导出表，展示我方销量/GMV/转化与竞品对比</text>
+  <text x="110" y="1842" class="font tiny">说明：EchoTik 免费版/导出表接入后，将显示 FastMoss vs EchoTik 销量差异；Seller Center 导出接入后，将显示我方与竞品差距。</text>
 </svg>
