@@ -5,6 +5,7 @@ import os
 import random
 import re
 import sys
+import time
 import urllib.parse
 import urllib.request
 from pathlib import Path
@@ -37,8 +38,16 @@ def request_json(url, cookie):
             "Cookie": cookie,
         },
     )
-    with urllib.request.urlopen(req, timeout=30) as resp:
-        return json.loads(resp.read().decode("utf-8"))
+    last_exc = None
+    for attempt in range(1, 4):
+        try:
+            with urllib.request.urlopen(req, timeout=75) as resp:
+                return json.loads(resp.read().decode("utf-8"))
+        except Exception as exc:
+            last_exc = exc
+            if attempt < 3:
+                time.sleep(3 * attempt)
+    raise last_exc
 
 
 def fastmoss_product(product_id, cookie):
@@ -52,6 +61,7 @@ def fastmoss_product(product_id, cookie):
         "cnonce": str(random.randint(10000000, 99999999)),
     }
     url = "https://www.fastmoss.com/api/goods/V2/search?" + urllib.parse.urlencode(params)
+    print(f"Fetching FastMoss product {product_id}")
     data = request_json(url, cookie)
     if data.get("code") != 200:
         raise RuntimeError(f"FastMoss API error for {product_id}: {data}")
