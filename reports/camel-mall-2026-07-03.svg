@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1600" viewBox="0 0 1200 1600">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f7fafc"/>
+      <stop offset="1" stop-color="#eef4f7"/>
+    </linearGradient>
+    <linearGradient id="hero" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#101820"/>
+      <stop offset="1" stop-color="#1f4f5f"/>
+    </linearGradient>
+    <style>
+      .font { font-family: "Microsoft YaHei", "Noto Sans CJK SC", Arial, sans-serif; }
+      .title { font-size: 54px; font-weight: 800; fill: #ffffff; }
+      .sub { font-size: 24px; fill: #d8e7ec; }
+      .label { font-size: 22px; fill: #647887; }
+      .dark { fill: #17242d; }
+      .muted { fill: #6b7e8b; }
+      .value { font-size: 42px; font-weight: 800; fill: #14232c; }
+      .small { font-size: 22px; fill: #5e707b; }
+      .card-title { font-size: 30px; font-weight: 800; fill: #152832; }
+      .price { font-size: 34px; font-weight: 800; fill: #0f7b6c; }
+      .pill { font-size: 20px; font-weight: 700; fill: #ffffff; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="1600" fill="url(#bg)"/>
+  <rect x="44" y="44" width="1112" height="226" rx="28" fill="url(#hero)"/>
+  <text x="82" y="120" class="font title">CAMEL Mall 竞品监控日报</text>
+  <text x="84" y="168" class="font sub">TikTok Shop Thailand · 2026-07-03 · 曼谷时间 20:42</text>
+  <text x="84" y="216" class="font sub">数据口径：商品页实时抓取 · 售价 / 累计销量 / 评分 / 评论数 / SKU缺货</text>
+
+  <rect x="78" y="300" width="320" height="150" rx="22" fill="#ffffff"/>
+  <text x="110" y="352" class="font label">监控商品</text>
+  <text x="110" y="410" class="font value">4</text>
+  <text x="170" y="410" class="font small">个核心 SKU</text>
+
+  <rect x="440" y="300" width="320" height="150" rx="22" fill="#ffffff"/>
+  <text x="472" y="352" class="font label">最高累计销量</text>
+  <text x="472" y="410" class="font value">188,385</text>
+  <text x="472" y="438" class="font small">煮蛋器</text>
+
+  <rect x="802" y="300" width="320" height="150" rx="22" fill="#ffffff"/>
+  <text x="834" y="352" class="font label">店铺表现</text>
+  <text x="834" y="410" class="font value">4.9</text>
+  <text x="900" y="410" class="font small">店铺评分 · 243.6K 粉丝</text>
+
+  <g transform="translate(78 500)">
+    <rect width="1044" height="202" rx="24" fill="#ffffff"/>
+    <rect x="28" y="30" width="8" height="142" rx="4" fill="#0f7b6c"/>
+    <text x="58" y="70" class="font card-title">1. 豆浆机 / 多功能破壁机</text>
+    <text x="58" y="124" class="font price">฿602.69</text>
+    <text x="250" y="124" class="font small">累计销量 149,215 · 评分 4.8 · 评论 17,064</text>
+    <rect x="58" y="148" width="150" height="36" rx="18" fill="#13a085"/>
+    <text x="80" y="173" class="font pill">库存正常</text>
+    <text x="232" y="173" class="font small">0/2 个 SKU 缺货</text>
+  </g>
+
+  <g transform="translate(78 734)">
+    <rect width="1044" height="202" rx="24" fill="#ffffff"/>
+    <rect x="28" y="30" width="8" height="142" rx="4" fill="#20639b"/>
+    <text x="58" y="70" class="font card-title">2. 煮蛋器</text>
+    <text x="58" y="124" class="font price">฿263.95</text>
+    <text x="250" y="124" class="font small">累计销量 188,385 · 评分 4.8 · 评论 17,751</text>
+    <rect x="58" y="148" width="150" height="36" rx="18" fill="#13a085"/>
+    <text x="80" y="173" class="font pill">库存正常</text>
+    <text x="232" y="173" class="font small">0/1 个 SKU 缺货 · 当前销量第一</text>
+  </g>
+
+  <g transform="translate(78 968)">
+    <rect width="1044" height="202" rx="24" fill="#ffffff"/>
+    <rect x="28" y="30" width="8" height="142" rx="4" fill="#7851a9"/>
+    <text x="58" y="70" class="font card-title">3. 手持挂烫机</text>
+    <text x="58" y="124" class="font price">฿360.31</text>
+    <text x="250" y="124" class="font small">累计销量 38,918 · 评分 4.8 · 评论 5,627</text>
+    <rect x="58" y="148" width="150" height="36" rx="18" fill="#13a085"/>
+    <text x="80" y="173" class="font pill">库存正常</text>
+    <text x="232" y="173" class="font small">0/4 个 SKU 缺货</text>
+  </g>
+
+  <g transform="translate(78 1202)">
+    <rect width="1044" height="202" rx="24" fill="#ffffff"/>
+    <rect x="28" y="30" width="8" height="142" rx="4" fill="#d97904"/>
+    <text x="58" y="70" class="font card-title">4. 电煮锅 / 多功能电锅</text>
+    <text x="58" y="124" class="font price">฿247.75</text>
+    <text x="250" y="124" class="font small">累计销量 166,479 · 评分 4.8 · 评论 21,556</text>
+    <rect x="58" y="148" width="150" height="36" rx="18" fill="#d97904"/>
+    <text x="80" y="173" class="font pill">关注缺货</text>
+    <text x="232" y="173" class="font small">1/7 个 SKU 缺货 · 建议跟踪补货和价格变化</text>
+  </g>
+
+  <rect x="78" y="1440" width="1044" height="96" rx="22" fill="#17242d"/>
+  <text x="112" y="1486" class="font sub">今日判断：煮蛋器销量最高；豆浆机和电煮锅均为 15 万+ 累计销量核心款。</text>
+  <text x="112" y="1524" class="font sub">后续重点：售价变化、销量增量、SKU 缺货、直播活动和促销节奏。</text>
+</svg>
