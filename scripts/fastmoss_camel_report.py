@@ -13,6 +13,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG_PATH = ROOT / "config" / "camel_fastmoss_products.json"
+MULTISOURCE_PATH = ROOT / "config" / "multisource_status.json"
+OWN_SHOP_PATH = ROOT / "config" / "own_shop_metrics.json"
 REPORT_DIR = ROOT / "reports"
 
 
@@ -94,10 +96,31 @@ def money(value):
     return str(value or "未知")
 
 
+def optional_json(path, default):
+    if not path.exists():
+        return default
+    return load_json(path)
+
+
+def source_pill(label, status, x, y, color):
+    return f"""
+    <rect x="{x}" y="{y}" width="220" height="56" rx="18" fill="{color}"/>
+    <text x="{x + 20}" y="{y + 34}" class="font pill">{xml_escape(label)} · {xml_escape(status)}</text>"""
+
+
 def build_svg(items, now):
+    multisource = optional_json(MULTISOURCE_PATH, {})
+    own_shop = optional_json(OWN_SHOP_PATH, {})
     top = max(items, key=lambda x: as_int(x.get("day7_sold_count")))
     total_day7 = sum(as_int(x.get("day7_sold_count")) for x in items)
     total_yday = sum(as_int(x.get("yday_sold_count")) for x in items)
+    creative_keywords = " / ".join((multisource.get("creative_center") or {}).get("keywords", [])[:4]) or "CAMEL / 竞品关键词"
+    own_status = "已接入" if own_shop else (multisource.get("own_shop") or {}).get("status", "待接入")
+    own_line = (
+        f"{own_shop.get('shop_name', '我们店铺')}：订单 {own_shop.get('orders', '未知')}｜GMV {own_shop.get('gmv', '未知')}｜Top品 {own_shop.get('top_product', '未知')}"
+        if own_shop
+        else (multisource.get("own_shop") or {}).get("note", "待接入 TikTok Seller Center 数据")
+    )
     cards = []
     colors = ["#0f7b6c", "#20639b", "#7851a9", "#d97904"]
     y = 500
@@ -130,7 +153,7 @@ def build_svg(items, now):
         )
         y += 238
 
-    return f"""<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1600" viewBox="0 0 1200 1600">
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1900" viewBox="0 0 1200 1900">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#f7fafc"/>
@@ -154,6 +177,7 @@ def build_svg(items, now):
     </style>
   </defs>
   <rect width="1200" height="1600" fill="url(#bg)"/>
+  <rect y="1600" width="1200" height="300" fill="url(#bg)"/>
   <rect x="44" y="44" width="1112" height="226" rx="28" fill="url(#hero)"/>
   <text x="82" y="120" class="font title">CAMEL Mall 竞品情报日报</text>
   <text x="84" y="168" class="font sub">FastMoss 数据源 · TikTok Shop Thailand · {now:%Y-%m-%d}</text>
@@ -179,6 +203,16 @@ def build_svg(items, now):
   <rect x="78" y="1450" width="1044" height="96" rx="22" fill="#17242d"/>
   <text x="112" y="1494" class="font sub">今日判断：近7天销量最高为 {xml_escape(top['name_cn'])}，近7天销量 {xml_escape(top.get('day7_sold_count_show') or top.get('day7_sold_count'))}。</text>
   <text x="112" y="1532" class="font sub">后续重点：价格变化、近7天增量、达人出单率、直播/视频带货规模。</text>
+
+  <rect x="78" y="1588" width="1044" height="240" rx="24" fill="#ffffff"/>
+  <text x="110" y="1640" class="font card-title">多源数据雷达</text>
+  {source_pill("FastMoss 主数据", "已接入", 110, 1668, "#0f7b6c")}
+  {source_pill("EchoTik 校验", (multisource.get("echotik") or {}).get("status", "待接入"), 350, 1668, "#7b8794")}
+  {source_pill("素材动向", (multisource.get("creative_center") or {}).get("status", "已加入"), 590, 1668, "#20639b")}
+  {source_pill("自家店铺", own_status, 830, 1668, "#d97904")}
+  <text x="110" y="1766" class="font small">Creative Center 关键词：{xml_escape(creative_keywords)}</text>
+  <text x="110" y="1804" class="font small">我方表现：{xml_escape(own_line)}</text>
+  <text x="110" y="1842" class="font tiny">说明：EchoTik 免费版/导出表接入后，将显示 FastMoss vs EchoTik 销量差异；Seller Center 导出接入后，将显示我方与竞品差距。</text>
 </svg>
 """
 
