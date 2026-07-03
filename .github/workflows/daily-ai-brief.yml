@@ -2,8 +2,8 @@ name: Daily AI Brief to WeChat
 
 on:
   schedule:
-    # 09:00 Asia/Bangkok = 02:00 UTC
-    - cron: "0 2 * * *"
+    # 09:17 Asia/Bangkok = 02:17 UTC. Avoid the top-of-hour Actions rush.
+    - cron: "17 2 * * *"
   workflow_dispatch:
 
 jobs:
