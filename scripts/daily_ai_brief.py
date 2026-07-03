@@ -67,6 +67,31 @@ def fetch_url(url, timeout=20):
         return response.read()
 
 
+def translate_to_chinese(text):
+    text = clean_text(text)
+    if not text:
+        return ""
+    if re.search(r"[\u4e00-\u9fff]", text):
+        return text
+
+    params = urllib.parse.urlencode(
+        {
+            "client": "gtx",
+            "sl": "auto",
+            "tl": "zh-CN",
+            "dt": "t",
+            "q": text[:4500],
+        }
+    )
+    url = f"https://translate.googleapis.com/translate_a/single?{params}"
+    try:
+        data = json.loads(fetch_url(url, timeout=15).decode("utf-8"))
+        translated = "".join(part[0] for part in data[0] if part and part[0])
+        return clean_text(translated) or text
+    except Exception:
+        return text
+
+
 def text_of(node, names):
     for name in names:
         found = node.find(name)
@@ -238,13 +263,21 @@ def fallback_brief(items, errors):
 3. 用 AI 生成 10 条广告 Hook，并按痛点/场景/赠礼/价格/信任分类。
 """.strip()
     else:
-        lines = ["## 今日 AI 动态聚合", ""]
+        lines = [
+            "## 今日 AI 动态聚合",
+            "",
+            "说明：当前未配置 OpenAI API Key，所以本简报使用免费新闻源聚合，并自动翻译为中文。质量会比 AI 深度整理版弱一些，但可以保证你先读得懂。",
+            "",
+        ]
         for index, item in enumerate(items[:10], start=1):
             date_text = item.get("published", "")[:10] or "日期未知"
-            summary = item.get("summary") or "暂无摘要。"
-            lines.append(f"{index}. [{item['title']}]({item['url']})")
+            title = translate_to_chinese(item["title"])
+            summary = translate_to_chinese(item.get("summary") or "暂无摘要。")
+            lines.append(f"{index}. [{title}]({item['url']})")
             lines.append(f"   来源：{item['source']}｜日期：{date_text}")
             lines.append(f"   摘要：{summary}")
+            if title != item["title"]:
+                lines.append(f"   原标题：{item['title']}")
             lines.append("")
         lines.extend(
             [
