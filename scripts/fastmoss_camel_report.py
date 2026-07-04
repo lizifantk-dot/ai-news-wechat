@@ -16,6 +16,7 @@ CONFIG_PATH = ROOT / "config" / "camel_fastmoss_products.json"
 MULTISOURCE_PATH = ROOT / "config" / "multisource_status.json"
 OWN_SHOP_PATH = ROOT / "config" / "own_shop_metrics.json"
 REPORT_DIR = ROOT / "reports"
+PUSH_LOG_PATH = REPORT_DIR / "push-log.json"
 
 
 def bangkok_now():
@@ -100,6 +101,22 @@ def optional_json(path, default):
     if not path.exists():
         return default
     return load_json(path)
+
+
+def already_pushed_today(date_name):
+    if os.getenv("GITHUB_EVENT_NAME") != "schedule":
+        return False
+    push_log = optional_json(PUSH_LOG_PATH, {})
+    return push_log.get("last_success_date") == date_name
+
+
+def record_push(date_name, now, result):
+    push_log = {
+        "last_success_date": date_name,
+        "last_success_time_bangkok": now.strftime("%Y-%m-%d %H:%M:%S"),
+        "pushid": result.get("data", {}).get("pushid"),
+    }
+    PUSH_LOG_PATH.write_text(json.dumps(push_log, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
 def source_pill(label, status, x, y, color):
@@ -236,6 +253,12 @@ def main():
     if not cookie:
         raise RuntimeError("Missing FASTMOSS_COOKIE")
     now = bangkok_now()
+    date_name = now.strftime("%Y-%m-%d")
+    REPORT_DIR.mkdir(exist_ok=True)
+    if already_pushed_today(date_name):
+        print(json.dumps({"ok": True, "skipped": True, "reason": "already_pushed_today", "date": date_name}, ensure_ascii=False))
+        return
+
     products = load_json(CONFIG_PATH)
     items = []
     for product in products:
@@ -243,8 +266,6 @@ def main():
         item["name_cn"] = product["name_cn"]
         items.append(item)
 
-    REPORT_DIR.mkdir(exist_ok=True)
-    date_name = now.strftime("%Y-%m-%d")
     svg = build_svg(items, now)
     (REPORT_DIR / f"camel-mall-{date_name}.svg").write_text(svg, encoding="utf-8")
     (REPORT_DIR / "camel-mall-latest.svg").write_text(svg, encoding="utf-8")
@@ -253,6 +274,7 @@ def main():
     image_url = f"https://raw.githubusercontent.com/lizifantk-dot/ai-news-wechat/main/reports/camel-mall-{date_name}.svg"
     body = f"# CAMEL Mall 竞品情报日报\\n\\n![CAMEL Mall 竞品情报日报]({image_url})\\n\\n图片链接：{image_url}\\n\\n数据源：FastMoss"
     result = push_serverchan(f"CAMEL Mall 竞品情报图 - {date_name}", body)
+    record_push(date_name, now, result)
     print(json.dumps({"ok": True, "products": len(items), "pushid": result.get("data", {}).get("pushid")}, ensure_ascii=False))
 
 
