@@ -9,6 +9,11 @@ on:
     - cron: "57 2 * * *"
     - cron: "7 3 * * *"
   workflow_dispatch:
+    inputs:
+      force_send:
+        description: "Force send even if today's report was already pushed"
+        required: false
+        default: "false"
 
 jobs:
   send-camel-brief:
@@ -26,20 +31,27 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Fetch EchoTik data
+        env:
+          ECHOTIK_AUTH_TOKEN: ${{ secrets.ECHOTIK_AUTH_TOKEN }}
+          TZ: Asia/Bangkok
+        run: python scripts/echotik_fetch.py || echo "EchoTik fetch failed; continue with FastMoss report."
+
       - name: Generate FastMoss report and push
         env:
           FASTMOSS_COOKIE: ${{ secrets.FASTMOSS_COOKIE }}
           SERVERCHAN_BOSS_SENDKEY: ${{ secrets.SERVERCHAN_BOSS_SENDKEY }}
+          FORCE_SEND: ${{ github.event.inputs.force_send }}
           TZ: Asia/Bangkok
         run: python scripts/fastmoss_camel_report.py
 
-      - name: Save generated report
+      - name: Save generated report and EchoTik data
         run: |
-          if [ -n "$(git status --porcelain reports)" ]; then
+          if [ -n "$(git status --porcelain reports data/echotik_latest.csv data/echotik_latest.json)" ]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add reports/
-            git commit -m "Update CAMEL FastMoss report"
+            git add reports/ data/echotik_latest.csv data/echotik_latest.json
+            git commit -m "Update CAMEL FastMoss and EchoTik report"
             git push
           else
             echo "No report changes to commit."
