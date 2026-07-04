@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1560" viewBox="0 0 1200 1560">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#061017"/><stop offset="0.55" stop-color="#091923"/><stop offset="1" stop-color="#0B0F16"/></linearGradient>
+    <linearGradient id="bar" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2EE6A6"/><stop offset="0.48" stop-color="#55A7FF"/><stop offset="1" stop-color="#FFC857"/></linearGradient>
+    <filter id="shadow"><feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#000" flood-opacity="0.34"/></filter>
+    <style>
+      text{font-family:'Microsoft YaHei UI','Microsoft YaHei','Segoe UI',Arial,sans-serif;letter-spacing:0}
+      .h1{font:800 46px 'Microsoft YaHei UI','Microsoft YaHei','Segoe UI',Arial,sans-serif;fill:#F3FAFF}
+      .h2{font:400 20px 'Microsoft YaHei UI','Microsoft YaHei','Segoe UI',Arial,sans-serif;fill:#9FB5BF}
+      .label{font:600 17px 'Microsoft YaHei UI','Microsoft YaHei','Segoe UI',Arial,sans-serif;fill:#8BA5B1}
+      .num{font:700 34px 'Bahnschrift','Segoe UI',Arial,sans-serif;fill:#F7FBFF}
+      .axis{font:700 16px 'Microsoft YaHei UI','Microsoft YaHei','Segoe UI',Arial,sans-serif;fill:#B8CAD2}
+      .focusName{font:800 30px 'Microsoft YaHei UI','Microsoft YaHei','Segoe UI',Arial,sans-serif;fill:#F3FAFF}
+      .focusText{font:500 19px 'Microsoft YaHei UI','Microsoft YaHei','Segoe UI',Arial,sans-serif;fill:#AFC3CC}
+      .rank{font:700 24px 'Bahnschrift','Segoe UI',Arial,sans-serif;fill:#EAF6FF}
+      .rowTitle{font:800 23px 'Microsoft YaHei UI','Microsoft YaHei','Segoe UI',Arial,sans-serif;fill:#F2F8FB}
+      .rowMetric{font:700 19px 'Microsoft YaHei UI','Microsoft YaHei','Segoe UI',Arial,sans-serif;fill:#DDECF2}
+      .rowSub{font:500 15px 'Microsoft YaHei UI','Microsoft YaHei','Segoe UI',Arial,sans-serif;fill:#8FA4AE}
+      .tag{font:700 14px 'Microsoft YaHei UI','Microsoft YaHei','Segoe UI',Arial,sans-serif;fill:#DDF7FF}
+      .conclusion{font:700 22px 'Microsoft YaHei UI','Microsoft YaHei','Segoe UI',Arial,sans-serif;fill:#F4FBFF}
+      .tiny{font:400 15px 'Microsoft YaHei UI','Microsoft YaHei','Segoe UI',Arial,sans-serif;fill:#78909A}
+    </style>
+  </defs>
+  <rect width="1200" height="1560" fill="url(#bg)"/>
+  <line x1="60" y1="332" x2="1140" y2="332" stroke="#112833" opacity="0.48"/><line x1="60" y1="458" x2="1140" y2="458" stroke="#112833" opacity="0.48"/><line x1="60" y1="584" x2="1140" y2="584" stroke="#112833" opacity="0.48"/><line x1="60" y1="710" x2="1140" y2="710" stroke="#112833" opacity="0.48"/><line x1="60" y1="836" x2="1140" y2="836" stroke="#112833" opacity="0.48"/><line x1="60" y1="962" x2="1140" y2="962" stroke="#112833" opacity="0.48"/><line x1="60" y1="1088" x2="1140" y2="1088" stroke="#112833" opacity="0.48"/><line x1="60" y1="1214" x2="1140" y2="1214" stroke="#112833" opacity="0.48"/><line x1="60" y1="1340" x2="1140" y2="1340" stroke="#112833" opacity="0.48"/><line x1="90" y1="300" x2="90" y2="1500" stroke="#112833" opacity="0.38"/><line x1="200" y1="300" x2="200" y2="1500" stroke="#112833" opacity="0.38"/><line x1="310" y1="300" x2="310" y2="1500" stroke="#112833" opacity="0.38"/><line x1="420" y1="300" x2="420" y2="1500" stroke="#112833" opacity="0.38"/><line x1="530" y1="300" x2="530" y2="1500" stroke="#112833" opacity="0.38"/><line x1="640" y1="300" x2="640" y2="1500" stroke="#112833" opacity="0.38"/><line x1="750" y1="300" x2="750" y2="1500" stroke="#112833" opacity="0.38"/><line x1="860" y1="300" x2="860" y2="1500" stroke="#112833" opacity="0.38"/><line x1="970" y1="300" x2="970" y2="1500" stroke="#112833" opacity="0.38"/><line x1="1080" y1="300" x2="1080" y2="1500" stroke="#112833" opacity="0.38"/>
+  <rect x="42" y="36" width="1116" height="232" rx="24" fill="#0F1C24" stroke="#263F4B" filter="url(#shadow)"/>
+  <rect x="42" y="36" width="1116" height="5" rx="2.5" fill="url(#bar)"/>
+  <text x="76" y="112" class="h1">CAMEL Mall 竞品雷达情报系统</text>
+  <text x="78" y="156" class="h2">EchoTik API · TikTok Shop Thailand · 2026-07-04 · Executive Intelligence Brief</text>
+  <text x="78" y="198" class="h2">监控口径：7日销量、7日GMV、累计销量、售价带宽、竞争强度</text>
+  <rect x="906" y="86" width="184" height="50" rx="25" fill="#112A33" stroke="#2EE6A6"/>
+  <text x="998" y="119" text-anchor="middle" class="tag" style="font-size:18px">LIVE DATA</text>
+  <g filter="url(#shadow)">
+    <rect x="62" y="304" width="250" height="116" rx="17" fill="#101D25" stroke="#253D49"/><text x="90" y="350" class="label">监控 SKU</text><text x="90" y="398" class="num">4</text>
+    <rect x="335" y="304" width="250" height="116" rx="17" fill="#101D25" stroke="#253D49"/><text x="363" y="350" class="label">近7天总销量</text><text x="363" y="398" class="num">5,631</text>
+    <rect x="608" y="304" width="250" height="116" rx="17" fill="#101D25" stroke="#253D49"/><text x="636" y="350" class="label">近7天GMV</text><text x="636" y="398" class="num">฿86,258</text>
+    <rect x="881" y="304" width="257" height="116" rx="17" fill="#101D25" stroke="#253D49"/><text x="909" y="350" class="label">累计总销量</text><text x="909" y="398" class="num">542,734</text>
+  </g>
+  <rect x="62" y="462" width="1076" height="416" rx="22" fill="#0B171F" stroke="#223B47" filter="url(#shadow)"/>
+  <text x="94" y="520" class="rowTitle">竞争强度雷达</text>
+  <text x="94" y="552" class="h2" style="font-size:18px">按近7天销量归一化，越靠外代表近期爆发越强</text>
+  <polygon points="392.0,648.0 434.0,690.0 392.0,732.0 350.0,690.0" fill="none" stroke="#294756" stroke-width="1" opacity="0.8"/><polygon points="392.0,606.0 476.0,690.0 392.0,774.0 308.0,690.0" fill="none" stroke="#294756" stroke-width="1" opacity="0.8"/><polygon points="392.0,564.0 518.0,690.0 392.0,816.0 266.0,690.0" fill="none" stroke="#294756" stroke-width="1" opacity="0.8"/><polygon points="392.0,522.0 560.0,690.0 392.0,858.0 224.0,690.0" fill="none" stroke="#294756" stroke-width="1" opacity="0.8"/><polygon points="392.0,480.0 602.0,690.0 392.0,900.0 182.0,690.0" fill="none" stroke="#294756" stroke-width="1" opacity="0.8"/>
+  <line x1="392" y1="690" x2="392.0" y2="460.0" stroke="#294756" stroke-width="1.2"/><text x="392.0" y="448.0" text-anchor="middle" class="axis">豆浆机 / 多功能…</text><line x1="392" y1="690" x2="622.0" y2="690.0" stroke="#294756" stroke-width="1.2"/><text x="622.0" y="716.0" text-anchor="middle" class="axis">煮蛋器</text><line x1="392" y1="690" x2="392.0" y2="920.0" stroke="#294756" stroke-width="1.2"/><text x="392.0" y="946.0" text-anchor="middle" class="axis">手持挂烫机</text><line x1="392" y1="690" x2="162.0" y2="690.0" stroke="#294756" stroke-width="1.2"/><text x="162.0" y="716.0" text-anchor="middle" class="axis">电煮锅 / 多功能…</text>
+  <polygon points="392.0,504.1 523.7,690.0 392.0,822.4 182.0,690.0" fill="#2EE6A6" opacity="0.18" stroke="#2EE6A6" stroke-width="3"/>
+  <circle cx="392.0" cy="504.1" r="6" fill="#2EE6A6" stroke="#EAF6FF" stroke-width="2"/><circle cx="523.7" cy="690.0" r="6" fill="#55A7FF" stroke="#EAF6FF" stroke-width="2"/><circle cx="392.0" cy="822.4" r="6" fill="#FFC857" stroke="#EAF6FF" stroke-width="2"/><circle cx="182.0" cy="690.0" r="6" fill="#FF6B8A" stroke="#EAF6FF" stroke-width="2"/>
+  <rect x="720" y="540" width="360" height="240" rx="18" fill="#101F28" stroke="#294756"/>
+  <text x="780" y="600" class="label">今日主警戒对象</text>
+  <text x="780" y="646" class="focusName">电煮锅 / 多功能</text><text x="780" y="682" class="focusName">电锅</text>
+  <text x="780" y="724" class="focusText">近7天销量：1936 单</text>
+  <text x="780" y="760" class="focusText">近7天GMV：฿23,093.16</text>
+  <text x="780" y="796" class="focusText">建议：盯价格、达人、直播节奏</text>
+  
+  <g transform="translate(62 940)">
+    <rect width="1076" height="82" rx="13" fill="#101D25" stroke="#253D49"/>
+    <rect x="0" y="0" width="5" height="82" rx="2.5" fill="#FF6B8A"/>
+    <text x="28" y="34" class="rank">#1</text>
+    <text x="88" y="32" class="rowTitle">电煮锅 / 多功能电锅</text>
+    <text x="88" y="60" class="rowSub">ID 1730585612576197328</text>
+    <text x="318" y="32" class="rowMetric">7日销量 1936</text>
+    <rect x="318" y="50" width="265" height="8" rx="4" fill="#21313A"/>
+    <rect x="318" y="50" width="265" height="8" rx="4" fill="#FF6B8A"/>
+    <text x="620" y="32" class="rowMetric">7日GMV ฿23,093.16</text>
+    <rect x="620" y="50" width="230" height="8" rx="4" fill="#21313A"/>
+    <rect x="620" y="50" width="139" height="8" rx="4" fill="#7DD3FC"/>
+    <text x="880" y="32" class="rowSub">总销量 166,389</text>
+    <text x="880" y="58" class="rowSub">售价 ฿8.64-฿14.64</text>
+    <rect x="972" y="22" width="82" height="30" rx="15" fill="#172A33" stroke="#FF6B8A"/>
+    <text x="1013" y="43" text-anchor="middle" class="tag">重点警戒</text>
+  </g>
+  <g transform="translate(62 1042)">
+    <rect width="1076" height="82" rx="13" fill="#101D25" stroke="#253D49"/>
+    <rect x="0" y="0" width="5" height="82" rx="2.5" fill="#2EE6A6"/>
+    <text x="28" y="34" class="rank">#2</text>
+    <text x="88" y="32" class="rowTitle">豆浆机 / 多功能破壁机</text>
+    <text x="88" y="60" class="rowSub">ID 1731209475345779408</text>
+    <text x="318" y="32" class="rowMetric">7日销量 1653</text>
+    <rect x="318" y="50" width="265" height="8" rx="4" fill="#21313A"/>
+    <rect x="318" y="50" width="226" height="8" rx="4" fill="#2EE6A6"/>
+    <text x="620" y="32" class="rowMetric">7日GMV ฿38,084.55</text>
+    <rect x="620" y="50" width="230" height="8" rx="4" fill="#21313A"/>
+    <rect x="620" y="50" width="230" height="8" rx="4" fill="#7DD3FC"/>
+    <text x="880" y="32" class="rowSub">总销量 149,147</text>
+    <text x="880" y="58" class="rowSub">售价 ฿20.74-฿24.93</text>
+    <rect x="972" y="22" width="82" height="30" rx="15" fill="#172A33" stroke="#2EE6A6"/>
+    <text x="1013" y="43" text-anchor="middle" class="tag">高热跟踪</text>
+  </g>
+  <g transform="translate(62 1144)">
+    <rect width="1076" height="82" rx="13" fill="#101D25" stroke="#253D49"/>
+    <rect x="0" y="0" width="5" height="82" rx="2.5" fill="#FFC857"/>
+    <text x="28" y="34" class="rank">#3</text>
+    <text x="88" y="32" class="rowTitle">手持挂烫机</text>
+    <text x="88" y="60" class="rowSub">ID 1730942410885335760</text>
+    <text x="318" y="32" class="rowMetric">7日销量 1025</text>
+    <rect x="318" y="50" width="265" height="8" rx="4" fill="#21313A"/>
+    <rect x="318" y="50" width="140" height="8" rx="4" fill="#FFC857"/>
+    <text x="620" y="32" class="rowMetric">7日GMV ฿14,910.38</text>
+    <rect x="620" y="50" width="230" height="8" rx="4" fill="#21313A"/>
+    <rect x="620" y="50" width="90" height="8" rx="4" fill="#7DD3FC"/>
+    <text x="880" y="32" class="rowSub">总销量 38,853</text>
+    <text x="880" y="58" class="rowSub">售价 ฿12.86-฿15.15</text>
+    <rect x="972" y="22" width="82" height="30" rx="15" fill="#172A33" stroke="#FFC857"/>
+    <text x="1013" y="43" text-anchor="middle" class="tag">稳定观察</text>
+  </g>
+  <g transform="translate(62 1246)">
+    <rect width="1076" height="82" rx="13" fill="#101D25" stroke="#253D49"/>
+    <rect x="0" y="0" width="5" height="82" rx="2.5" fill="#55A7FF"/>
+    <text x="28" y="34" class="rank">#4</text>
+    <text x="88" y="32" class="rowTitle">煮蛋器</text>
+    <text x="88" y="60" class="rowSub">ID 1730508436883278544</text>
+    <text x="318" y="32" class="rowMetric">7日销量 1017</text>
+    <rect x="318" y="50" width="265" height="8" rx="4" fill="#21313A"/>
+    <rect x="318" y="50" width="139" height="8" rx="4" fill="#55A7FF"/>
+    <text x="620" y="32" class="rowMetric">7日GMV ฿10,170.40</text>
+    <rect x="620" y="50" width="230" height="8" rx="4" fill="#21313A"/>
+    <rect x="620" y="50" width="61" height="8" rx="4" fill="#7DD3FC"/>
+    <text x="880" y="32" class="rowSub">总销量 188,345</text>
+    <text x="880" y="58" class="rowSub">售价 ฿9.02</text>
+    <rect x="972" y="22" width="82" height="30" rx="15" fill="#172A33" stroke="#55A7FF"/>
+    <text x="1013" y="43" text-anchor="middle" class="tag">低位监控</text>
+  </g>
+  <rect x="62" y="1394" width="1076" height="96" rx="18" fill="#101D25" stroke="#2EE6A6"/>
+  <text x="94" y="1434" class="conclusion">今日主警戒：电煮锅 / 多功能电锅，近7天销量 1936 单。建议重点盯价格、直</text><text x="94" y="1468" class="conclusion">播节奏和达人带货。</text>
+  <text x="62" y="1528" class="tiny">数据源：EchoTik API · GitHub Actions 自动生成 · 推送对象：老板微信</text>
+</svg>
