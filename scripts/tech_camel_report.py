@@ -10,6 +10,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_PATH = ROOT / "data" / "echotik_latest.json"
+FASTMOSS_PATH = ROOT / "data" / "fastmoss_latest.json"
 REPORT_DIR = ROOT / "reports"
 PUSH_LOG_PATH = REPORT_DIR / "push-log.json"
 
@@ -55,6 +56,15 @@ def money_total(value):
     return f"฿{value:,.0f}"
 
 
+def match_by_id(rows):
+    return {str(row.get("product_id")): row for row in rows}
+
+
+def compact_metric(value):
+    value = str(value or "-")
+    return short(value.replace("฿", "฿"), 14)
+
+
 def already_pushed_today(date_name):
     if os.getenv("FORCE_SEND", "").strip().lower() in ("1", "true", "yes"):
         return False
@@ -85,8 +95,9 @@ def point(cx, cy, radius, deg):
     return cx + math.cos(rad) * radius, cy + math.sin(rad) * radius
 
 
-def build_svg(rows, now):
+def build_svg(rows, fastmoss_rows, now):
     rows = rows[:4]
+    fastmoss_by_id = match_by_id(fastmoss_rows)
     sorted_rows = sorted(rows, key=lambda item: number(item.get("day7_sold")), reverse=True)
     max_7 = max([number(item.get("day7_sold")) for item in rows] + [1])
     max_gmv = max([number(item.get("day7_gmv")) for item in rows] + [1])
@@ -148,15 +159,15 @@ def build_svg(rows, now):
     <rect x="0" y="0" width="5" height="82" rx="2.5" fill="{color}"/>
     <text x="28" y="34" class="rank">#{rank}</text>
     <text x="88" y="32" class="rowTitle">{xml(short(row.get("name_cn"), 13))}</text>
-    <text x="88" y="60" class="rowSub">ID {xml(row.get("product_id"))}</text>
+    <text x="88" y="60" class="rowSub">EchoTik {xml(compact_metric(row.get("day7_sold")))} 单 · FastMoss {xml(compact_metric((fastmoss_by_id.get(str(row.get("product_id"))) or {}).get("day7_sold")))} 单</text>
     <text x="318" y="32" class="rowMetric">7日销量 {xml(row.get("day7_sold"))}</text>
     <rect x="318" y="50" width="265" height="8" rx="4" fill="#21313A"/>
     <rect x="318" y="50" width="{sales_width}" height="8" rx="4" fill="{color}"/>
     <text x="620" y="32" class="rowMetric">7日GMV {xml(row.get("day7_gmv"))}</text>
     <rect x="620" y="50" width="230" height="8" rx="4" fill="#21313A"/>
     <rect x="620" y="50" width="{gmv_width}" height="8" rx="4" fill="#7DD3FC"/>
-    <text x="880" y="32" class="rowSub">总销量 {int(number(row.get("sold"))):,}</text>
-    <text x="880" y="58" class="rowSub">售价 {xml(short(row.get("price"), 16))}</text>
+    <text x="880" y="32" class="rowSub">Echo总量 {int(number(row.get("sold"))):,}</text>
+    <text x="880" y="58" class="rowSub">FM GMV {xml(compact_metric((fastmoss_by_id.get(str(row.get("product_id"))) or {}).get("day7_gmv")))}</text>
     <rect x="972" y="22" width="82" height="30" rx="15" fill="#172A33" stroke="{color}"/>
     <text x="1013" y="43" text-anchor="middle" class="tag">{tag}</text>
   </g>"""
@@ -199,8 +210,8 @@ def build_svg(rows, now):
   <rect x="42" y="36" width="1116" height="232" rx="24" fill="#0F1C24" stroke="#263F4B" filter="url(#shadow)"/>
   <rect x="42" y="36" width="1116" height="5" rx="2.5" fill="url(#bar)"/>
   <text x="76" y="112" class="h1">CAMEL Mall 竞品雷达情报系统</text>
-  <text x="78" y="156" class="h2">EchoTik API · TikTok Shop Thailand · {now:%Y-%m-%d} · Executive Intelligence Brief</text>
-  <text x="78" y="198" class="h2">监控口径：7日销量、7日GMV、累计销量、售价带宽、竞争强度</text>
+  <text x="78" y="156" class="h2">EchoTik API + FastMoss Member Data · TikTok Shop Thailand · {now:%Y-%m-%d}</text>
+  <text x="78" y="198" class="h2">监控口径：EchoTik 主口径、FastMoss 交叉校验、7日销量、GMV、售价带宽、竞争强度</text>
   <rect x="906" y="86" width="184" height="50" rx="25" fill="#112A33" stroke="#2EE6A6"/>
   <text x="998" y="119" text-anchor="middle" class="tag" style="font-size:18px">LIVE DATA</text>
   <g filter="url(#shadow)">
@@ -221,11 +232,11 @@ def build_svg(rows, now):
   {top_lines}
   <text x="780" y="724" class="focusText">近7天销量：{xml(top.get("day7_sold", "-"))} 单</text>
   <text x="780" y="760" class="focusText">近7天GMV：{xml(top.get("day7_gmv", "-"))}</text>
-  <text x="780" y="796" class="focusText">建议：盯价格、达人、直播节奏</text>
+  <text x="780" y="796" class="focusText">建议：盯价格、达人、直播节奏，并对比 FastMoss 差异</text>
   {''.join(row_blocks)}
   <rect x="62" y="1394" width="1076" height="96" rx="18" fill="#101D25" stroke="#2EE6A6"/>
   {conclusion_lines}
-  <text x="62" y="1528" class="tiny">数据源：EchoTik API · GitHub Actions 自动生成 · 推送对象：老板微信</text>
+  <text x="62" y="1528" class="tiny">数据源：EchoTik API + FastMoss 会员数据 · GitHub Actions 自动生成 · 推送对象：老板微信</text>
 </svg>"""
 
 
@@ -254,8 +265,10 @@ def main():
     rows = data.get("products") or data.get("items") or []
     if not rows:
         raise RuntimeError("Missing EchoTik data. Run scripts/echotik_fetch.py first.")
+    fastmoss_data = load_json(FASTMOSS_PATH, {})
+    fastmoss_rows = fastmoss_data.get("products") or fastmoss_data.get("items") or []
 
-    svg = build_svg(rows, now)
+    svg = build_svg(rows, fastmoss_rows, now)
     report_name = f"camel-mall-tech-radar-{date_name}.svg"
     latest_name = "camel-mall-tech-radar-latest.svg"
     (REPORT_DIR / report_name).write_text(svg, encoding="utf-8")
@@ -267,7 +280,7 @@ def main():
         f"# CAMEL Mall 竞品雷达情报\\n\\n"
         f"![CAMEL Mall 竞品雷达情报]({image_url})\\n\\n"
         f"图片链接：{image_url}\\n\\n"
-        f"数据源：EchoTik API · GitHub Actions 自动生成"
+        f"数据源：EchoTik API + FastMoss 会员数据 · GitHub Actions 自动生成"
     )
     result = push_serverchan(title, body)
     record_push(date_name, now, result)
