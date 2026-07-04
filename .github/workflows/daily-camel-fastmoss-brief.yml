@@ -2,8 +2,12 @@ name: Daily CAMEL FastMoss Brief
 
 on:
   schedule:
-    # 09:47 Asia/Bangkok = 02:47 UTC
+    # Primary: 09:47 Asia/Bangkok = 02:47 UTC
     - cron: "47 2 * * *"
+    # Backups: GitHub scheduled runs can occasionally be delayed or skipped.
+    # The script deduplicates scheduled pushes per Bangkok date.
+    - cron: "57 2 * * *"
+    - cron: "7 3 * * *"
   workflow_dispatch:
 
 jobs:
