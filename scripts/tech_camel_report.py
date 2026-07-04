@@ -98,6 +98,7 @@ def point(cx, cy, radius, deg):
 def build_svg(rows, fastmoss_rows, now):
     rows = rows[:4]
     fastmoss_by_id = match_by_id(fastmoss_rows)
+    has_fastmoss = bool(fastmoss_rows)
     sorted_rows = sorted(rows, key=lambda item: number(item.get("day7_sold")), reverse=True)
     max_7 = max([number(item.get("day7_sold")) for item in rows] + [1])
     max_gmv = max([number(item.get("day7_gmv")) for item in rows] + [1])
@@ -173,6 +174,17 @@ def build_svg(rows, fastmoss_rows, now):
   </g>"""
         )
 
+    source_line = (
+        "数据源：EchoTik API + FastMoss 会员数据 · GitHub Actions 自动生成 · 推送对象：老板微信"
+        if has_fastmoss
+        else "数据源：EchoTik API · FastMoss 登录态待更新 · GitHub Actions 自动生成 · 推送对象：老板微信"
+    )
+    subtitle_source = (
+        "EchoTik API + FastMoss Member Data"
+        if has_fastmoss
+        else "EchoTik API · FastMoss Cookie Pending"
+    )
+
     conclusion = (
         f"今日主警戒：{top.get('name_cn', '-')}，近7天销量 {top.get('day7_sold', '-')} 单。"
         "建议重点盯价格、直播节奏和达人带货。"
@@ -210,7 +222,7 @@ def build_svg(rows, fastmoss_rows, now):
   <rect x="42" y="36" width="1116" height="232" rx="24" fill="#0F1C24" stroke="#263F4B" filter="url(#shadow)"/>
   <rect x="42" y="36" width="1116" height="5" rx="2.5" fill="url(#bar)"/>
   <text x="76" y="112" class="h1">CAMEL Mall 竞品雷达情报系统</text>
-  <text x="78" y="156" class="h2">EchoTik API + FastMoss Member Data · TikTok Shop Thailand · {now:%Y-%m-%d}</text>
+  <text x="78" y="156" class="h2">{subtitle_source} · TikTok Shop Thailand · {now:%Y-%m-%d}</text>
   <text x="78" y="198" class="h2">监控口径：EchoTik 主口径、FastMoss 交叉校验、7日销量、GMV、售价带宽、竞争强度</text>
   <rect x="906" y="86" width="184" height="50" rx="25" fill="#112A33" stroke="#2EE6A6"/>
   <text x="998" y="119" text-anchor="middle" class="tag" style="font-size:18px">LIVE DATA</text>
@@ -236,7 +248,7 @@ def build_svg(rows, fastmoss_rows, now):
   {''.join(row_blocks)}
   <rect x="62" y="1394" width="1076" height="96" rx="18" fill="#101D25" stroke="#2EE6A6"/>
   {conclusion_lines}
-  <text x="62" y="1528" class="tiny">数据源：EchoTik API + FastMoss 会员数据 · GitHub Actions 自动生成 · 推送对象：老板微信</text>
+  <text x="62" y="1528" class="tiny">{source_line}</text>
 </svg>"""
 
 
@@ -280,7 +292,7 @@ def main():
         f"# CAMEL Mall 竞品雷达情报\\n\\n"
         f"![CAMEL Mall 竞品雷达情报]({image_url})\\n\\n"
         f"图片链接：{image_url}\\n\\n"
-        f"数据源：EchoTik API + FastMoss 会员数据 · GitHub Actions 自动生成"
+        f"数据源：EchoTik API + FastMoss 会员数据（FastMoss 成功抓取时自动展示）· GitHub Actions 自动生成"
     )
     result = push_serverchan(title, body)
     record_push(date_name, now, result)
