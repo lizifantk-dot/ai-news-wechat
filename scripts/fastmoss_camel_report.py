@@ -1,4 +1,5 @@
 import datetime as dt
+import csv
 import html
 import json
 import os
@@ -15,6 +16,11 @@ ROOT = Path(__file__).resolve().parents[1]
 CONFIG_PATH = ROOT / "config" / "camel_fastmoss_products.json"
 MULTISOURCE_PATH = ROOT / "config" / "multisource_status.json"
 OWN_SHOP_PATH = ROOT / "config" / "own_shop_metrics.json"
+DATA_DIR = ROOT / "data"
+ECHOTIK_JSON_PATH = DATA_DIR / "echotik_latest.json"
+ECHOTIK_CSV_PATH = DATA_DIR / "echotik_latest.csv"
+OWN_SHOP_JSON_PATH = DATA_DIR / "own_shop_latest.json"
+OWN_SHOP_CSV_PATH = DATA_DIR / "own_shop_latest.csv"
 REPORT_DIR = ROOT / "reports"
 PUSH_LOG_PATH = REPORT_DIR / "push-log.json"
 
@@ -103,6 +109,81 @@ def optional_json(path, default):
     return load_json(path)
 
 
+def load_rows(json_path, csv_path):
+    if json_path.exists():
+        data = load_json(json_path)
+        if isinstance(data, list):
+            return data
+        if isinstance(data, dict):
+            rows = data.get("products") or data.get("items") or data.get("rows")
+            if isinstance(rows, list):
+                return rows
+            return [data]
+    if csv_path.exists():
+        with csv_path.open("r", encoding="utf-8-sig", newline="") as fh:
+            return list(csv.DictReader(fh))
+    return []
+
+
+def row_value(row, *names):
+    aliases = {
+        "product_id": ["product_id", "商品ID", "商品id", "商品编号", "item_id"],
+        "name_cn": ["name_cn", "商品", "商品名称", "品名", "product_name", "title"],
+        "sold": ["sold", "销量", "总销量", "sold_count", "sales"],
+        "day7_sold": ["day7_sold", "近7天销量", "7天销量", "day7_sold_count", "7d_sales"],
+        "gmv": ["gmv", "GMV", "销售额", "成交额", "sale_amount"],
+        "price": ["price", "价格", "售价"],
+        "orders": ["orders", "订单", "订单数"],
+        "conversion_rate": ["conversion_rate", "转化率"],
+        "source": ["source", "来源"],
+    }
+    for name in names:
+        for key in aliases.get(name, [name]):
+            value = row.get(key)
+            if value not in (None, ""):
+                return str(value).strip()
+    return ""
+
+
+def match_metric_row(product, rows):
+    product_id = str(product.get("product_id") or product.get("id") or "")
+    name_cn = str(product.get("name_cn") or "")
+    title = str(product.get("title") or "")
+    for row in rows:
+        row_product_id = row_value(row, "product_id")
+        row_name = row_value(row, "name_cn")
+        if row_product_id and row_product_id == product_id:
+            return row
+        if row_name and (row_name in name_cn or name_cn in row_name or row_name in title):
+            return row
+    return {}
+
+
+def metric_summary(row, empty_text):
+    if not row:
+        return empty_text
+    parts = []
+    day7 = row_value(row, "day7_sold")
+    sold = row_value(row, "sold")
+    gmv = row_value(row, "gmv")
+    price = row_value(row, "price")
+    orders = row_value(row, "orders")
+    conversion = row_value(row, "conversion_rate")
+    if day7:
+        parts.append(f"近7天销量 {day7}")
+    if sold:
+        parts.append(f"销量 {sold}")
+    if orders:
+        parts.append(f"订单 {orders}")
+    if gmv:
+        parts.append(f"GMV {gmv}")
+    if price:
+        parts.append(f"售价 {price}")
+    if conversion:
+        parts.append(f"转化率 {conversion}")
+    return "｜".join(parts) if parts else "已导入，字段待映射"
+
+
 def already_pushed_today(date_name):
     if os.getenv("GITHUB_EVENT_NAME") != "schedule":
         return False
@@ -127,12 +208,16 @@ def source_pill(label, status, x, y, color):
 
 def build_svg(items, now):
     multisource = optional_json(MULTISOURCE_PATH, {})
-    own_shop = optional_json(OWN_SHOP_PATH, {})
+    own_shop_config = optional_json(OWN_SHOP_PATH, {})
+    echotik_rows = load_rows(ECHOTIK_JSON_PATH, ECHOTIK_CSV_PATH)
+    own_shop_rows = load_rows(OWN_SHOP_JSON_PATH, OWN_SHOP_CSV_PATH)
+    own_shop = own_shop_rows[0] if own_shop_rows else own_shop_config
     top = max(items, key=lambda x: as_int(x.get("day7_sold_count")))
     total_day7 = sum(as_int(x.get("day7_sold_count")) for x in items)
     total_yday = sum(as_int(x.get("yday_sold_count")) for x in items)
     creative_keywords = " / ".join((multisource.get("creative_center") or {}).get("keywords", [])[:4]) or "CAMEL / 竞品关键词"
-    own_status = "已接入" if own_shop else (multisource.get("own_shop") or {}).get("status", "待接入")
+    echotik_status = "已接入" if echotik_rows else (multisource.get("echotik") or {}).get("status", "待接入")
+    own_status = "已接入" if own_shop_rows or own_shop_config else (multisource.get("own_shop") or {}).get("status", "待接入")
     own_line = (
         f"{own_shop.get('shop_name', '我们店铺')}：订单 {own_shop.get('orders', '未知')}｜GMV {own_shop.get('gmv', '未知')}｜Top品 {own_shop.get('top_product', '未知')}"
         if own_shop
@@ -154,16 +239,19 @@ def build_svg(items, now):
         shop = xml_escape((item.get("shop_info") or {}).get("name") or item.get("shop_name") or "CAMEL Mall")
         author_rate = xml_escape(item.get("author_order_rate_show") or item.get("author_order_rate") or "未知")
         product_title = xml_escape(short_title(item.get("title")))
+        echotik_line = xml_escape(metric_summary(match_metric_row(item, echotik_rows), "EchoTik：待导入校验数据"))
+        own_product_line = xml_escape(metric_summary(match_metric_row(item, own_shop_rows), "我方：待导入同类商品数据"))
         cards.append(
             f"""
   <g transform="translate(78 {y})">
-    <rect width="1044" height="214" rx="24" fill="#ffffff"/>
-    <rect x="28" y="30" width="8" height="154" rx="4" fill="{color}"/>
+    <rect width="1044" height="226" rx="24" fill="#ffffff"/>
+    <rect x="28" y="30" width="8" height="166" rx="4" fill="{color}"/>
     <text x="58" y="66" class="font card-title">{idx}. {title}</text>
     <text x="58" y="102" class="font tiny">{product_title}</text>
     <text x="58" y="154" class="font price">{price}</text>
     <text x="250" y="142" class="font small">近7天销量：{day7}｜昨日销量：{yday}｜近7天GMV：{gmv7}</text>
     <text x="250" y="178" class="font small">总销量：{total}｜评分：{rating}｜佣金：{commission}｜达人出单率：{author_rate}</text>
+    <text x="250" y="208" class="font tiny">{echotik_line}；{own_product_line}</text>
     <rect x="810" y="42" width="178" height="38" rx="19" fill="{color}"/>
     <text x="838" y="68" class="font pill">{shop}</text>
   </g>"""
@@ -224,7 +312,7 @@ def build_svg(items, now):
   <rect x="78" y="1588" width="1044" height="240" rx="24" fill="#ffffff"/>
   <text x="110" y="1640" class="font card-title">多源数据雷达</text>
   {source_pill("FastMoss 主数据", "已接入", 110, 1668, "#0f7b6c")}
-  {source_pill("EchoTik 校验", (multisource.get("echotik") or {}).get("status", "待接入"), 350, 1668, "#7b8794")}
+  {source_pill("EchoTik 校验", echotik_status, 350, 1668, "#7b8794")}
   {source_pill("素材动向", (multisource.get("creative_center") or {}).get("status", "已加入"), 590, 1668, "#20639b")}
   {source_pill("自家店铺", own_status, 830, 1668, "#d97904")}
   <text x="110" y="1766" class="font small">Creative Center 关键词：{xml_escape(creative_keywords)}</text>
