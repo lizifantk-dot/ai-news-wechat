@@ -37,6 +37,12 @@ jobs:
           TZ: Asia/Bangkok
         run: python scripts/echotik_fetch.py || echo "EchoTik fetch failed; continue with FastMoss report."
 
+      - name: Fetch FastMoss data
+        env:
+          FASTMOSS_COOKIE: ${{ secrets.FASTMOSS_COOKIE }}
+          TZ: Asia/Bangkok
+        run: python scripts/fastmoss_fetch.py || echo "FastMoss fetch failed; continue with EchoTik report."
+
       - name: Generate tech radar report and push
         env:
           SERVERCHAN_BOSS_SENDKEY: ${{ secrets.SERVERCHAN_BOSS_SENDKEY }}
@@ -46,10 +52,10 @@ jobs:
 
       - name: Save generated report and EchoTik data
         run: |
-          if [ -n "$(git status --porcelain reports data/echotik_latest.csv data/echotik_latest.json)" ]; then
+          if [ -n "$(git status --porcelain reports data/echotik_latest.csv data/echotik_latest.json data/fastmoss_latest.csv data/fastmoss_latest.json)" ]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add reports/ data/echotik_latest.csv data/echotik_latest.json
+            git add reports/ data/echotik_latest.csv data/echotik_latest.json data/fastmoss_latest.csv data/fastmoss_latest.json
             git commit -m "Update CAMEL tech radar report"
             git push
           else
