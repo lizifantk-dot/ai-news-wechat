@@ -45,46 +45,50 @@
 
 
   <g transform="translate(78 500)">
-    <rect width="1044" height="214" rx="24" fill="#ffffff"/>
-    <rect x="28" y="30" width="8" height="154" rx="4" fill="#0f7b6c"/>
+    <rect width="1044" height="226" rx="24" fill="#ffffff"/>
+    <rect x="28" y="30" width="8" height="166" rx="4" fill="#0f7b6c"/>
     <text x="58" y="66" class="font card-title">1. 豆浆机 / 多功能破壁机</text>
     <text x="58" y="102" class="font tiny">CAMEL เครื่องปั่นอเนกประสงค์ เครื่องปั่นน้ำ...</text>
     <text x="58" y="154" class="font price">฿740.44  - 910.17</text>
     <text x="250" y="142" class="font small">近7天销量：1.1k｜昨日销量：154｜近7天GMV：฿864.0k</text>
     <text x="250" y="178" class="font small">总销量：113.8k｜评分：4.8｜佣金：7%｜达人出单率：43.51%</text>
+    <text x="250" y="208" class="font tiny">近7天销量 1547｜销量 148943｜GMV ฿3,458,841.69｜售价 ฿21.46-฿25.80；我方：待导入同类商品数据</text>
     <rect x="810" y="42" width="178" height="38" rx="19" fill="#0f7b6c"/>
     <text x="838" y="68" class="font pill">CAMEL Mall</text>
   </g>
   <g transform="translate(78 738)">
-    <rect width="1044" height="214" rx="24" fill="#ffffff"/>
-    <rect x="28" y="30" width="8" height="154" rx="4" fill="#20639b"/>
+    <rect width="1044" height="226" rx="24" fill="#ffffff"/>
+    <rect x="28" y="30" width="8" height="166" rx="4" fill="#20639b"/>
     <text x="58" y="66" class="font card-title">2. 煮蛋器</text>
     <text x="58" y="102" class="font tiny">CAMEL เครื่องต้มไข่ไฟฟ้าสแตนเลสพลาสติก ต้มไ...</text>
     <text x="58" y="154" class="font price">฿381.27</text>
     <text x="250" y="142" class="font small">近7天销量：762｜昨日销量：108｜近7天GMV：฿290.5k</text>
     <text x="250" y="178" class="font small">总销量：136.9k｜评分：4.8｜佣金：7%｜达人出单率：52.58%</text>
+    <text x="250" y="208" class="font tiny">近7天销量 998｜销量 188238｜GMV ฿1,980,918.79｜售价 ฿8.80；我方：待导入同类商品数据</text>
     <rect x="810" y="42" width="178" height="38" rx="19" fill="#20639b"/>
     <text x="838" y="68" class="font pill">CAMEL Mall</text>
   </g>
   <g transform="translate(78 976)">
-    <rect width="1044" height="214" rx="24" fill="#ffffff"/>
-    <rect x="28" y="30" width="8" height="154" rx="4" fill="#7851a9"/>
+    <rect width="1044" height="226" rx="24" fill="#ffffff"/>
+    <rect x="28" y="30" width="8" height="166" rx="4" fill="#7851a9"/>
     <text x="58" y="66" class="font card-title">3. 手持挂烫机</text>
     <text x="58" y="102" class="font tiny">CAMEL เตารีดไอน้ำแบบมือถือ พับเก็บได้ ใช้ได...</text>
     <text x="58" y="154" class="font price">฿508.37  - 584.25</text>
     <text x="250" y="142" class="font small">近7天销量：1.7k｜昨日销量：184｜近7天GMV：฿863.2k</text>
     <text x="250" y="178" class="font small">总销量：36.6k｜评分：4.8｜佣金：7%｜达人出单率：70.37%</text>
+    <text x="250" y="208" class="font tiny">近7天销量 869｜销量 38628｜GMV ฿614,661.07｜售价 ฿11.72-฿13.81；我方：待导入同类商品数据</text>
     <rect x="810" y="42" width="178" height="38" rx="19" fill="#7851a9"/>
     <text x="838" y="68" class="font pill">CAMEL Mall</text>
   </g>
   <g transform="translate(78 1214)">
-    <rect width="1044" height="214" rx="24" fill="#ffffff"/>
-    <rect x="28" y="30" width="8" height="154" rx="4" fill="#d97904"/>
+    <rect width="1044" height="226" rx="24" fill="#ffffff"/>
+    <rect x="28" y="30" width="8" height="166" rx="4" fill="#d97904"/>
     <text x="58" y="66" class="font card-title">4. 电煮锅 / 多功能电锅</text>
     <text x="58" y="102" class="font tiny">CAMEL หม้อไฟฟ้า ชั้นนึ่ง/ไม่มีเครื่องนึ่ง ห...</text>
     <text x="58" y="154" class="font price">฿316.62  - 499.50</text>
     <text x="250" y="142" class="font small">近7天销量：1.6k｜昨日销量：202｜近7天GMV：฿516.4k</text>
     <text x="250" y="178" class="font small">总销量：151.7k｜评分：4.8｜佣金：7%｜达人出单率：53.08%</text>
+    <text x="250" y="208" class="font tiny">近7天销量 2032｜销量 166165｜GMV ฿2,145,708.92｜售价 ฿8.68-฿14.71；我方：待导入同类商品数据</text>
     <rect x="810" y="42" width="178" height="38" rx="19" fill="#d97904"/>
     <text x="838" y="68" class="font pill">CAMEL Mall</text>
   </g>
@@ -100,14 +104,14 @@
     <text x="130" y="1702" class="font pill">FastMoss 主数据 · 已接入</text>
   
     <rect x="350" y="1668" width="220" height="56" rx="18" fill="#7b8794"/>
-    <text x="370" y="1702" class="font pill">EchoTik 校验 · 待接入</text>
+    <text x="370" y="1702" class="font pill">EchoTik 校验 · 已接入</text>
   
     <rect x="590" y="1668" width="220" height="56" rx="18" fill="#20639b"/>
     <text x="610" y="1702" class="font pill">素材动向 · 已加入</text>
   
     <rect x="830" y="1668" width="220" height="56" rx="18" fill="#d97904"/>
-    <text x="850" y="1702" class="font pill">自家店铺 · 待接入</text>
+    <text x="850" y="1702" class="font pill">自家店铺 · 入口已接入</text>
   <text x="110" y="1766" class="font small">Creative Center 关键词：CAMEL blender / egg cooker / steam iron / electric pot</text>
-  <text x="110" y="1804" class="font small">我方表现：可接 TikTok Seller Center 导出表，展示我方销量/GMV/转化与竞品对比</text>
+  <text x="110" y="1804" class="font small">我方表现：导入 data/own_shop_latest.csv 后自动展示我方销量/GMV/转化与竞品对比</text>
   <text x="110" y="1842" class="font tiny">说明：EchoTik 免费版/导出表接入后，将显示 FastMoss vs EchoTik 销量差异；Seller Center 导出接入后，将显示我方与竞品差距。</text>
 </svg>
