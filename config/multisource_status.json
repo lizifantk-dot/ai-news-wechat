@@ -1,14 +1,14 @@
 {
   "echotik": {
-    "status": "待接入",
-    "note": "可用 EchoTik 免费版导出或 API Key 做第二口径校验"
+    "status": "入口已接入",
+    "note": "导入 data/echotik_latest.csv 后自动做第二口径校验"
   },
   "creative_center": {
     "status": "已加入",
     "keywords": ["CAMEL blender", "egg cooker", "steam iron", "electric pot", "หม้อไฟฟ้า", "เครื่องต้มไข่"]
   },
   "own_shop": {
-    "status": "待接入",
-    "note": "可接 TikTok Seller Center 导出表，展示我方销量/GMV/转化与竞品对比"
+    "status": "入口已接入",
+    "note": "导入 data/own_shop_latest.csv 后自动展示我方销量/GMV/转化与竞品对比"
   }
 }
