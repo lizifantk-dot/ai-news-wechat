@@ -100,10 +100,19 @@ def auth_error(data):
     )
 
 
+def short_error(exc):
+    text = str(exc)
+    if "MAG_AUTH" in text or "is_login" in text:
+        return "FastMoss Cookie 已失效，需要重新登录。"
+    if "Timeout" in text and "locator" in text:
+        return "FastMoss 自动登录未找到账号输入框，可能页面结构变化或触发验证。"
+    return text[:500]
+
+
 def fetch_product(product_id, cookie):
     data = request_json(product_url(product_id), cookie)
     if auth_error(data):
-        raise PermissionError(f"FastMoss login expired: {data}")
+        raise PermissionError("FastMoss login expired (MAG_AUTH_3019 / is_login=0).")
     if data.get("code") != 200:
         raise RuntimeError(f"FastMoss API error for {product_id}: {data}")
     products = ((data.get("data") or {}).get("product_list")) or []
@@ -163,11 +172,22 @@ async def browser_login(username, password):
             ),
         )
         page = await context.new_page()
-        await page.goto(SEARCH_URL, wait_until="domcontentloaded", timeout=90000)
+        login_urls = [
+            f"{BASE_URL}/zh/login",
+            f"{BASE_URL}/login",
+            SEARCH_URL,
+        ]
+        for login_url in login_urls:
+            await page.goto(login_url, wait_until="domcontentloaded", timeout=90000)
+            await page.wait_for_timeout(1500)
+            if await page.locator("input").count():
+                break
 
         login_selectors = [
             "text=登录",
+            "text=登录/注册",
             "text=登入",
+            "text=立即登录",
             "text=Sign in",
             "text=Login",
             "button:has-text('登录')",
@@ -184,6 +204,8 @@ async def browser_login(username, password):
             "text=密码登录",
             "text=账号密码登录",
             "text=手机账号密码登录",
+            "text=手机号登录",
+            "text=账号登录",
             "text=Password",
         ]
         for selector in password_tabs:
@@ -195,8 +217,10 @@ async def browser_login(username, password):
                 pass
 
         phone_input = page.locator(
-            "input[type='tel'], input[name*='phone'], input[name*='mobile'], "
-            "input[placeholder*='手机号'], input[placeholder*='手机'], input[placeholder*='Phone']"
+            "input[type='tel'], input[type='text'], input[type='email'], input:not([type]), "
+            "input[name*='phone'], input[name*='mobile'], input[name*='account'], input[name*='user'], "
+            "input[autocomplete='username'], input[placeholder*='手机号'], input[placeholder*='手机'], "
+            "input[placeholder*='账号'], input[placeholder*='邮箱'], input[placeholder*='Phone'], input[placeholder*='Email']"
         ).first
         password_input = page.locator("input[type='password']").first
 
@@ -265,8 +289,8 @@ def main():
             print(json.dumps({"ok": True, "source": "FastMoss", "products": len(rows), "login": "cookie"}, ensure_ascii=False))
             return 0
         except Exception as exc:
-            errors.append(f"cookie failed: {exc}")
-            print(f"FastMoss cookie failed, trying account login: {exc}", file=sys.stderr)
+            errors.append(f"cookie failed: {short_error(exc)}")
+            print(f"FastMoss cookie failed, trying account login: {short_error(exc)}", file=sys.stderr)
 
     try:
         login_cookie = login_with_credentials()
@@ -275,7 +299,7 @@ def main():
         print(json.dumps({"ok": True, "source": "FastMoss", "products": len(rows), "login": "username_password"}, ensure_ascii=False))
         return 0
     except Exception as exc:
-        errors.append(f"account login failed: {exc}")
+        errors.append(f"account login failed: {short_error(exc)}")
         message = "；".join(errors)
         write_status(False, message)
         print(f"ERROR: {message}", file=sys.stderr)
