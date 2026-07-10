@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data"
 OUT_CSV = DATA_DIR / "fastmoss_latest.csv"
 OUT_JSON = DATA_DIR / "fastmoss_latest.json"
+STATUS_JSON = DATA_DIR / "fastmoss_status.json"
 
 PRODUCTS = [
     {"product_id": "1731209475345779408", "name_cn": "豆浆机 / 多功能破壁机"},
@@ -22,9 +23,32 @@ PRODUCTS = [
     {"product_id": "1730585612576197328", "name_cn": "电煮锅 / 多功能电锅"},
 ]
 
+BASE_URL = "https://www.fastmoss.com"
+SEARCH_URL = f"{BASE_URL}/zh/e-commerce/search?region=TH"
+
 
 def bangkok_now():
     return dt.datetime.now(dt.timezone.utc).astimezone(dt.timezone(dt.timedelta(hours=7)))
+
+
+def write_status(ok, message, *, cookie_source="", products=0):
+    DATA_DIR.mkdir(exist_ok=True)
+    now = bangkok_now()
+    STATUS_JSON.write_text(
+        json.dumps(
+            {
+                "ok": ok,
+                "message": message,
+                "cookie_source": cookie_source,
+                "products": products,
+                "checked_at": now.strftime("%Y-%m-%d %H:%M:%S"),
+                "date": now.strftime("%Y-%m-%d"),
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
 
 
 def request_json(url, cookie):
@@ -37,7 +61,7 @@ def request_json(url, cookie):
             ),
             "Accept": "application/json, text/plain, */*",
             "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,th;q=0.7",
-            "Referer": "https://www.fastmoss.com/zh/e-commerce/search?region=TH",
+            "Referer": SEARCH_URL,
             "Cookie": cookie,
         },
     )
@@ -53,7 +77,7 @@ def request_json(url, cookie):
     raise last_error
 
 
-def fetch_product(product_id, cookie):
+def product_url(product_id):
     params = {
         "page": "1",
         "pagesize": "10",
@@ -63,15 +87,32 @@ def fetch_product(product_id, cookie):
         "_time": str(int(dt.datetime.now(dt.timezone.utc).timestamp())),
         "cnonce": str(random.randint(10000000, 99999999)),
     }
-    url = "https://www.fastmoss.com/api/goods/V2/search?" + urllib.parse.urlencode(params)
-    data = request_json(url, cookie)
+    return f"{BASE_URL}/api/goods/V2/search?" + urllib.parse.urlencode(params)
+
+
+def auth_error(data):
+    text = json.dumps(data, ensure_ascii=False)
+    return (
+        data.get("code") in (401, 403)
+        or "MAG_AUTH" in text
+        or '"is_login": 0' in text
+        or "'is_login': 0" in text
+    )
+
+
+def fetch_product(product_id, cookie):
+    data = request_json(product_url(product_id), cookie)
+    if auth_error(data):
+        raise PermissionError(f"FastMoss login expired: {data}")
     if data.get("code") != 200:
         raise RuntimeError(f"FastMoss API error for {product_id}: {data}")
     products = ((data.get("data") or {}).get("product_list")) or []
     for item in products:
         if str(item.get("product_id")) == str(product_id):
             return item
-    return products[0] if products else {}
+    if not products:
+        raise RuntimeError(f"FastMoss returned no product for {product_id}")
+    return products[0]
 
 
 def value(item, *keys):
@@ -102,32 +143,144 @@ def normalize(item, product, now):
     }
 
 
-def main():
-    cookie = os.getenv("FASTMOSS_COOKIE", "").strip()
-    if not cookie:
-        print("FASTMOSS_COOKIE is not configured; skip FastMoss fetch.")
-        return 0
+def cookies_to_header(cookies):
+    return "; ".join(f"{item['name']}={item['value']}" for item in cookies if item.get("name") and item.get("value"))
 
+
+async def browser_login(username, password):
+    try:
+        from playwright.async_api import async_playwright
+    except Exception as exc:
+        raise RuntimeError("Playwright is not installed; cannot auto-login FastMoss.") from exc
+
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(headless=True)
+        context = await browser.new_context(
+            locale="zh-CN",
+            user_agent=(
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+            ),
+        )
+        page = await context.new_page()
+        await page.goto(SEARCH_URL, wait_until="domcontentloaded", timeout=90000)
+
+        login_selectors = [
+            "text=登录",
+            "text=登入",
+            "text=Sign in",
+            "text=Login",
+            "button:has-text('登录')",
+        ]
+        for selector in login_selectors:
+            try:
+                if await page.locator(selector).first.count():
+                    await page.locator(selector).first.click(timeout=5000)
+                    break
+            except Exception:
+                pass
+
+        password_tabs = [
+            "text=密码登录",
+            "text=账号密码登录",
+            "text=手机账号密码登录",
+            "text=Password",
+        ]
+        for selector in password_tabs:
+            try:
+                if await page.locator(selector).first.count():
+                    await page.locator(selector).first.click(timeout=5000)
+                    break
+            except Exception:
+                pass
+
+        phone_input = page.locator(
+            "input[type='tel'], input[name*='phone'], input[name*='mobile'], "
+            "input[placeholder*='手机号'], input[placeholder*='手机'], input[placeholder*='Phone']"
+        ).first
+        password_input = page.locator("input[type='password']").first
+
+        await phone_input.fill(username, timeout=20000)
+        await password_input.fill(password, timeout=20000)
+
+        submit = page.locator(
+            "button:has-text('登录'), button:has-text('登入'), button:has-text('Sign in'), button:has-text('Login')"
+        ).first
+        await submit.click(timeout=10000)
+        await page.wait_for_timeout(8000)
+
+        page_text = await page.locator("body").inner_text(timeout=10000)
+        if any(word in page_text for word in ["验证码", "验证", "captcha", "短信"]):
+            raise RuntimeError("FastMoss requires verification code/captcha; manual verification is needed.")
+
+        await page.goto(SEARCH_URL, wait_until="networkidle", timeout=90000)
+        cookies = await context.cookies(BASE_URL)
+        await browser.close()
+        cookie = cookies_to_header(cookies)
+        if not cookie:
+            raise RuntimeError("FastMoss login produced no cookies.")
+        return cookie
+
+
+def login_with_credentials():
+    username = os.getenv("FASTMOSS_USERNAME", "").strip()
+    password = os.getenv("FASTMOSS_PASSWORD", "").strip()
+    if not username or not password:
+        raise RuntimeError("FASTMOSS_USERNAME/FASTMOSS_PASSWORD are not configured.")
+    import asyncio
+
+    return asyncio.run(browser_login(username, password))
+
+
+def collect_rows(cookie):
     now = bangkok_now()
     rows = []
     for product in PRODUCTS:
         item = fetch_product(product["product_id"], cookie)
         rows.append(normalize(item, product, now))
+    return rows
 
+
+def write_outputs(rows, cookie_source):
     DATA_DIR.mkdir(exist_ok=True)
-    OUT_JSON.write_text(json.dumps({"products": rows}, ensure_ascii=False, indent=2), encoding="utf-8")
+    OUT_JSON.write_text(
+        json.dumps({"products": rows, "source": "FastMoss", "cookie_source": cookie_source}, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
     with OUT_CSV.open("w", encoding="utf-8-sig", newline="") as fh:
         writer = csv.DictWriter(fh, fieldnames=list(rows[0].keys()))
         writer.writeheader()
         writer.writerows(rows)
+    write_status(True, "FastMoss data fetched successfully.", cookie_source=cookie_source, products=len(rows))
 
-    print(json.dumps({"ok": True, "source": "FastMoss", "products": len(rows)}, ensure_ascii=False))
-    return 0
+
+def main():
+    cookie = os.getenv("FASTMOSS_COOKIE", "").strip()
+    errors = []
+
+    if cookie:
+        try:
+            rows = collect_rows(cookie)
+            write_outputs(rows, "FASTMOSS_COOKIE")
+            print(json.dumps({"ok": True, "source": "FastMoss", "products": len(rows), "login": "cookie"}, ensure_ascii=False))
+            return 0
+        except Exception as exc:
+            errors.append(f"cookie failed: {exc}")
+            print(f"FastMoss cookie failed, trying account login: {exc}", file=sys.stderr)
+
+    try:
+        login_cookie = login_with_credentials()
+        rows = collect_rows(login_cookie)
+        write_outputs(rows, "FASTMOSS_USERNAME_PASSWORD")
+        print(json.dumps({"ok": True, "source": "FastMoss", "products": len(rows), "login": "username_password"}, ensure_ascii=False))
+        return 0
+    except Exception as exc:
+        errors.append(f"account login failed: {exc}")
+        message = "；".join(errors)
+        write_status(False, message)
+        print(f"ERROR: {message}", file=sys.stderr)
+        return 1
 
 
 if __name__ == "__main__":
-    try:
-        raise SystemExit(main())
-    except Exception as exc:
-        print(f"ERROR: {exc}", file=sys.stderr)
-        raise SystemExit(1)
+    raise SystemExit(main())
