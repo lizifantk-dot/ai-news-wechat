@@ -11,6 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DATA_PATH = ROOT / "data" / "echotik_latest.json"
 FASTMOSS_PATH = ROOT / "data" / "fastmoss_latest.json"
+FASTMOSS_STATUS_PATH = ROOT / "data" / "fastmoss_status.json"
 REPORT_DIR = ROOT / "reports"
 PUSH_LOG_PATH = REPORT_DIR / "push-log.json"
 
@@ -38,7 +39,7 @@ def number(value):
 
 def short(value, length):
     value = str(value or "")
-    return value if len(value) <= length else value[: length - 1] + "…"
+    return value if len(value) <= length else value[: max(1, length - 1)] + "…"
 
 
 def split_lines(value, size, max_lines):
@@ -61,8 +62,7 @@ def match_by_id(rows):
 
 
 def compact_metric(value):
-    value = str(value or "-")
-    return short(value.replace("฿", "฿"), 14)
+    return short(str(value or "-").replace("฿", "฿"), 14)
 
 
 def already_pushed_today(date_name):
@@ -88,6 +88,18 @@ def record_push(date_name, now, result):
     )
 
 
+def is_fresh_fastmoss(row, date_name):
+    snapshot = str(row.get("snapshot_time") or "")
+    return snapshot.startswith(date_name)
+
+
+def fresh_fastmoss_rows(date_name):
+    data = load_json(FASTMOSS_PATH, {})
+    rows = data.get("products") or data.get("items") or []
+    fresh_rows = [row for row in rows if is_fresh_fastmoss(row, date_name)]
+    return fresh_rows if len(fresh_rows) == len(rows) else []
+
+
 def point(cx, cy, radius, deg):
     import math
 
@@ -95,8 +107,9 @@ def point(cx, cy, radius, deg):
     return cx + math.cos(rad) * radius, cy + math.sin(rad) * radius
 
 
-def build_svg(rows, fastmoss_rows, now):
+def build_svg(rows, fastmoss_rows, fastmoss_status, now):
     rows = rows[:4]
+    date_name = now.strftime("%Y-%m-%d")
     fastmoss_by_id = match_by_id(fastmoss_rows)
     has_fastmoss = bool(fastmoss_rows)
     sorted_rows = sorted(rows, key=lambda item: number(item.get("day7_sold")), reverse=True)
@@ -150,9 +163,10 @@ def build_svg(rows, fastmoss_rows, now):
         idx = rows.index(row)
         y = 940 + (rank - 1) * 102
         color = colors[idx % len(colors)]
+        fm_row = fastmoss_by_id.get(str(row.get("product_id"))) or {}
         sales_width = round(number(row.get("day7_sold")) / max_7 * 265)
         gmv_width = round(number(row.get("day7_gmv")) / max_gmv * 230)
-        tag = ["重点警戒", "高热跟踪", "稳定观察", "低位监控"][rank - 1]
+        tag = ["重点预警", "高热跟踪", "稳定观察", "低位监控"][rank - 1]
         row_blocks.append(
             f"""
   <g transform="translate(62 {y})">
@@ -160,34 +174,33 @@ def build_svg(rows, fastmoss_rows, now):
     <rect x="0" y="0" width="5" height="82" rx="2.5" fill="{color}"/>
     <text x="28" y="34" class="rank">#{rank}</text>
     <text x="88" y="32" class="rowTitle">{xml(short(row.get("name_cn"), 13))}</text>
-    <text x="88" y="60" class="rowSub">EchoTik {xml(compact_metric(row.get("day7_sold")))} 单 · FastMoss {xml(compact_metric((fastmoss_by_id.get(str(row.get("product_id"))) or {}).get("day7_sold")))} 单</text>
+    <text x="88" y="60" class="rowSub">EchoTik {xml(compact_metric(row.get("day7_sold")))} 单 · FastMoss {xml(compact_metric(fm_row.get("day7_sold")))} 单</text>
     <text x="318" y="32" class="rowMetric">7日销量 {xml(row.get("day7_sold"))}</text>
     <rect x="318" y="50" width="265" height="8" rx="4" fill="#21313A"/>
     <rect x="318" y="50" width="{sales_width}" height="8" rx="4" fill="{color}"/>
-    <text x="620" y="32" class="rowMetric">7日GMV {xml(row.get("day7_gmv"))}</text>
+    <text x="620" y="32" class="rowMetric">7日 GMV {xml(row.get("day7_gmv"))}</text>
     <rect x="620" y="50" width="230" height="8" rx="4" fill="#21313A"/>
     <rect x="620" y="50" width="{gmv_width}" height="8" rx="4" fill="#7DD3FC"/>
-    <text x="880" y="32" class="rowSub">Echo总量 {int(number(row.get("sold"))):,}</text>
-    <text x="880" y="58" class="rowSub">FM GMV {xml(compact_metric((fastmoss_by_id.get(str(row.get("product_id"))) or {}).get("day7_gmv")))}</text>
+    <text x="880" y="32" class="rowSub">Echo 总量 {int(number(row.get("sold"))):,}</text>
+    <text x="880" y="58" class="rowSub">FM GMV {xml(compact_metric(fm_row.get("day7_gmv")))}</text>
     <rect x="972" y="22" width="82" height="30" rx="15" fill="#172A33" stroke="{color}"/>
     <text x="1013" y="43" text-anchor="middle" class="tag">{tag}</text>
   </g>"""
         )
 
+    fm_status_text = "FastMoss 会员数据：已同步" if has_fastmoss else "FastMoss 会员数据：登录态待验证"
+    fm_status_color = "#2EE6A6" if has_fastmoss else "#FFC857"
+    fm_message = "今日 FastMoss 已参与交叉校验" if has_fastmoss else short(fastmoss_status.get("message", "今日未拿到 FastMoss 新鲜数据"), 38)
     source_line = (
         "数据源：EchoTik API + FastMoss 会员数据 · GitHub Actions 自动生成 · 推送对象：老板微信"
         if has_fastmoss
-        else "数据源：EchoTik API · FastMoss 登录态待更新 · GitHub Actions 自动生成 · 推送对象：老板微信"
+        else "数据源：EchoTik API · FastMoss 登录待验证，不展示旧数据 · GitHub Actions 自动生成 · 推送对象：老板微信"
     )
-    subtitle_source = (
-        "EchoTik API + FastMoss Member Data"
-        if has_fastmoss
-        else "EchoTik API · FastMoss Cookie Pending"
-    )
+    subtitle_source = "EchoTik API + FastMoss Member Data" if has_fastmoss else "EchoTik API · FastMoss Login Check"
 
     conclusion = (
         f"今日主警戒：{top.get('name_cn', '-')}，近7天销量 {top.get('day7_sold', '-')} 单。"
-        "建议重点盯价格、直播节奏和达人带货。"
+        "建议重点盯价格、达人、直播节奏，并对比 FastMoss 差异。"
     )
     conclusion_lines = "".join(
         f'<text x="94" y="{1434 + idx * 34}" class="conclusion">{xml(line)}</text>'
@@ -222,33 +235,36 @@ def build_svg(rows, fastmoss_rows, now):
   <rect x="42" y="36" width="1116" height="232" rx="24" fill="#0F1C24" stroke="#263F4B" filter="url(#shadow)"/>
   <rect x="42" y="36" width="1116" height="5" rx="2.5" fill="url(#bar)"/>
   <text x="76" y="112" class="h1">CAMEL Mall 竞品雷达情报系统</text>
-  <text x="78" y="156" class="h2">{subtitle_source} · TikTok Shop Thailand · {now:%Y-%m-%d}</text>
+  <text x="78" y="156" class="h2">{subtitle_source} · TikTok Shop Thailand · {date_name}</text>
   <text x="78" y="198" class="h2">监控口径：EchoTik 主口径、FastMoss 交叉校验、7日销量、GMV、售价带宽、竞争强度</text>
   <rect x="906" y="86" width="184" height="50" rx="25" fill="#112A33" stroke="#2EE6A6"/>
   <text x="998" y="119" text-anchor="middle" class="tag" style="font-size:18px">LIVE DATA</text>
   <g filter="url(#shadow)">
     <rect x="62" y="304" width="250" height="116" rx="17" fill="#101D25" stroke="#253D49"/><text x="90" y="350" class="label">监控 SKU</text><text x="90" y="398" class="num">{len(rows)}</text>
-    <rect x="335" y="304" width="250" height="116" rx="17" fill="#101D25" stroke="#253D49"/><text x="363" y="350" class="label">近7天总销量</text><text x="363" y="398" class="num">{int(total_7):,}</text>
-    <rect x="608" y="304" width="250" height="116" rx="17" fill="#101D25" stroke="#253D49"/><text x="636" y="350" class="label">近7天GMV</text><text x="636" y="398" class="num">{money_total(total_gmv)}</text>
+    <rect x="335" y="304" width="250" height="116" rx="17" fill="#101D25" stroke="#253D49"/><text x="363" y="350" class="label">近 7 天总销量</text><text x="363" y="398" class="num">{int(total_7):,}</text>
+    <rect x="608" y="304" width="250" height="116" rx="17" fill="#101D25" stroke="#253D49"/><text x="636" y="350" class="label">近 7 天 GMV</text><text x="636" y="398" class="num">{money_total(total_gmv)}</text>
     <rect x="881" y="304" width="257" height="116" rx="17" fill="#101D25" stroke="#253D49"/><text x="909" y="350" class="label">累计总销量</text><text x="909" y="398" class="num">{int(total_sold):,}</text>
   </g>
   <rect x="62" y="462" width="1076" height="416" rx="22" fill="#0B171F" stroke="#223B47" filter="url(#shadow)"/>
   <text x="94" y="520" class="rowTitle">竞争强度雷达</text>
-  <text x="94" y="552" class="h2" style="font-size:18px">按近7天销量归一化，越靠外代表近期爆发越强</text>
+  <text x="94" y="552" class="h2" style="font-size:18px">按近 7 天销量归一化，越靠外代表近期爆发越强</text>
   {''.join(rings)}
   {''.join(axes)}
   <polygon points="{' '.join(radar_points)}" fill="#2EE6A6" opacity="0.18" stroke="#2EE6A6" stroke-width="3"/>
   {''.join(radar_dots)}
-  <rect x="720" y="540" width="360" height="240" rx="18" fill="#101F28" stroke="#294756"/>
+  <rect x="720" y="540" width="360" height="270" rx="18" fill="#101F28" stroke="#294756"/>
   <text x="780" y="600" class="label">今日主警戒对象</text>
   {top_lines}
-  <text x="780" y="724" class="focusText">近7天销量：{xml(top.get("day7_sold", "-"))} 单</text>
-  <text x="780" y="760" class="focusText">近7天GMV：{xml(top.get("day7_gmv", "-"))}</text>
-  <text x="780" y="796" class="focusText">建议：盯价格、达人、直播节奏，并对比 FastMoss 差异</text>
+  <text x="780" y="724" class="focusText">近 7 天销量：{xml(top.get("day7_sold", "-"))} 单</text>
+  <text x="780" y="760" class="focusText">近 7 天 GMV：{xml(top.get("day7_gmv", "-"))}</text>
+  <text x="780" y="796" class="focusText">建议：盯价格、达人、直播节奏</text>
   {''.join(row_blocks)}
+  <rect x="62" y="1340" width="1076" height="42" rx="21" fill="#101D25" stroke="{fm_status_color}"/>
+  <text x="94" y="1368" class="tag" style="fill:{fm_status_color};font-size:18px">{xml(fm_status_text)}</text>
+  <text x="430" y="1368" class="rowSub">{xml(fm_message)}</text>
   <rect x="62" y="1394" width="1076" height="96" rx="18" fill="#101D25" stroke="#2EE6A6"/>
   {conclusion_lines}
-  <text x="62" y="1528" class="tiny">{source_line}</text>
+  <text x="62" y="1528" class="tiny">{xml(source_line)}</text>
 </svg>"""
 
 
@@ -277,10 +293,10 @@ def main():
     rows = data.get("products") or data.get("items") or []
     if not rows:
         raise RuntimeError("Missing EchoTik data. Run scripts/echotik_fetch.py first.")
-    fastmoss_data = load_json(FASTMOSS_PATH, {})
-    fastmoss_rows = fastmoss_data.get("products") or fastmoss_data.get("items") or []
 
-    svg = build_svg(rows, fastmoss_rows, now)
+    fastmoss_rows = fresh_fastmoss_rows(date_name)
+    fastmoss_status = load_json(FASTMOSS_STATUS_PATH, {})
+    svg = build_svg(rows, fastmoss_rows, fastmoss_status, now)
     report_name = f"camel-mall-tech-radar-{date_name}.svg"
     latest_name = "camel-mall-tech-radar-latest.svg"
     (REPORT_DIR / report_name).write_text(svg, encoding="utf-8")
@@ -288,11 +304,12 @@ def main():
 
     image_url = f"https://raw.githubusercontent.com/lizifantk-dot/ai-news-wechat/main/reports/{report_name}"
     title = f"CAMEL Mall 竞品雷达情报 - {date_name}"
+    source_text = "EchoTik API + FastMoss 会员数据" if fastmoss_rows else "EchoTik API；FastMoss 登录待验证，不展示旧数据"
     body = (
-        f"# CAMEL Mall 竞品雷达情报\\n\\n"
-        f"![CAMEL Mall 竞品雷达情报]({image_url})\\n\\n"
-        f"图片链接：{image_url}\\n\\n"
-        f"数据源：EchoTik API + FastMoss 会员数据（FastMoss 成功抓取时自动展示）· GitHub Actions 自动生成"
+        f"# CAMEL Mall 竞品雷达情报\n\n"
+        f"![CAMEL Mall 竞品雷达情报]({image_url})\n\n"
+        f"图片链接：{image_url}\n\n"
+        f"数据源：{source_text} · GitHub Actions 自动生成"
     )
     result = push_serverchan(title, body)
     record_push(date_name, now, result)
