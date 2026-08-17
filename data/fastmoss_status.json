@@ -1,8 +1,8 @@
 {
   "ok": false,
-  "message": "cookie failed: FastMoss Cookie 已失效，需要重新登录。；account login failed: Page.goto: Navigation to \"https://www.fastmoss.com/login\" is interrupted by another navigation to \"https://www.fastmoss.com/zh/login\"\nCall log:\n  - navigating to \"https://www.fastmoss.com/login\", waiting until \"domcontentloaded\"\n",
+  "message": "cookie failed: FastMoss Cookie 已失效，需要重新登录。；account login failed: FastMoss 自动登录未找到账号输入框，可能页面结构变化或触发验证。",
   "cookie_source": "",
   "products": 0,
-  "checked_at": "2026-08-17 10:58:07",
+  "checked_at": "2026-08-17 11:21:52",
   "date": "2026-08-17"
 }
