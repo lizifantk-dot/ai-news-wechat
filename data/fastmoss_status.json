@@ -1,8 +1,8 @@
 {
   "ok": false,
-  "message": "cookie failed: FastMoss Cookie 已失效，需要重新登录。；account login failed: Page.goto: Navigation to \"https://www.fastmoss.com/zh/e-commerce/search?region=TH\" is interrupted by another navigation to \"https://www.fastmoss.com/login\"\nCall log:\n  - navigating to \"https://www.fastmoss.com/zh/e-commerce/search?region=TH\", waiting until \"domcontentloaded\"\n",
+  "message": "cookie failed: FastMoss Cookie 已失效，需要重新登录。；account login failed: Page.goto: Navigation to \"https://www.fastmoss.com/login\" is interrupted by another navigation to \"https://www.fastmoss.com/zh/login\"\nCall log:\n  - navigating to \"https://www.fastmoss.com/login\", waiting until \"domcontentloaded\"\n",
   "cookie_source": "",
   "products": 0,
-  "checked_at": "2026-08-28 01:15:39",
+  "checked_at": "2026-08-28 02:02:33",
   "date": "2026-08-28"
 }
